@@ -1,0 +1,15 @@
+new instructions
+VCRTS: Vehicular Cloud Real Time System
+Project Milestone 5: Client-Server
+Due Saturday, Apr 6th at 11:59pm
+
+Building on your previous work, add Client-server model to your program. In this model Client
+(task owner or vehicle owner) sends the data to VC Controller (server). VC Controller can
+authorize the data to be stored on the file. There should be a button for VC Controller to Accept
+or Reject. If the VC Controller rejects, the data will not be stored on the file.
+The process is same for Vehicle Owner. Vehicle Owner sends the data to VC Controller (server).
+If VC Controller accepts, the data will be stored on the file otherwise it won’t be stored.
+Server should send the message to clients (Task Owner or Vehicle Owner) specifying the request
+was accepted or rejected.
+
+Note: You can have multiple frames representing Task Owner, Vehicle Owner and VC Controller.
