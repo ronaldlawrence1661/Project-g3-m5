@@ -7,10 +7,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class AcceptJobGUI {
+public class AcceptJobGui {
     private String username;
 
-    public AcceptJobGUI(String username) {
+    public AcceptJobGui(String username) {
         this.username = username;
         JFrame frame = new JFrame("Accept Job");
         frame.setSize(500, 400);

@@ -31,7 +31,7 @@ class VehicleOwnerLoginGUI {
                 String password = new String(passwordField.getPassword());
                 if (validateLogin(username, password, "vehicle_owners.txt")) {
                     JOptionPane.showMessageDialog(frame, "Login Successful!");
-                    new VehicleOwnerDashboard(username);
+                    //new VehicleOwnerDashboard(username);       
                     frame.dispose();
                 } else {
                     JOptionPane.showMessageDialog(frame, "Invalid username or password.");

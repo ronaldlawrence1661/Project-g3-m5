@@ -1,15 +1,18 @@
+import java.io.Serializable;
+import java.util.Date;
 
-public class Job{	
+public class Job implements Serializable {	
     // Attributes of the Job Method
         private String clientID;
         private String overview;
         private int redundancy;
         private int duration;
+        private Date deadline;
     
     // Creates a Job Object
-        public Job(String clientID, String overview, int redundancy, int duration) {
+        public Job(String clientID, Date deadline, int redundancy, int duration) {
             this.clientID = clientID;
-            this.overview = overview;
+            this.deadline = deadline;
             this.redundancy = redundancy;
             this.duration = duration;
         }

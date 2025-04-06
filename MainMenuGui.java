@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class MainMenuGUI {
+public class MainMenuGui {
     public void display() {
         JFrame frame = new JFrame("VCRTS - Vehicular Cloud Real-Time System");
         frame.setSize(400, 300);

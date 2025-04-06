@@ -1,4 +1,6 @@
-public class Vehicle {
+import java.io.Serializable;
+
+public class Vehicle implements Serializable {
     private int carID;
     private int ownerID;
     private String carMake;

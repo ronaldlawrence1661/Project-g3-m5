@@ -27,7 +27,7 @@ public class VCRTS {
     }
 
     public static void showMainMenu() {
-        MainMenuGUI mainMenu = new MainMenuGUI();
+        MainMenuGui mainMenu = new MainMenuGui();
         mainMenu.display();
     }
 }
