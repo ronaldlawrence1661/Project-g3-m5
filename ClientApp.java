@@ -1,36 +1,44 @@
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.*;
 
 public class ClientApp {
     public static void main(String[] args) {
         try {
-            // Create socket connection to the server at localhost, port 5000
-            Socket socket = new Socket("localhost", 5000);
-            System.out.println("Connected to server.");
+            // Get inputs using dialog boxes
+            String jobDesc = JOptionPane.showInputDialog("Enter job description:");
+            String deadlineInput = JOptionPane.showInputDialog("Enter deadline (yyyy-MM-dd):");
+            String redundancyInput = JOptionPane.showInputDialog("Enter redundancy:");
+            String durationInput = JOptionPane.showInputDialog("Enter duration:");
 
-            // Set up input and output streams
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(dos);
+            // Parse values
+            Date deadline = new SimpleDateFormat("yyyy-MM-dd").parse(deadlineInput);
+            int redundancy = Integer.parseInt(redundancyInput);
+            int duration = Integer.parseInt(durationInput);
 
-            // Create a Job object to send to the server
-            String jobDesc = "Fix the car";
-            Date deadline = new Date();  // Set a real deadline
-            int redundancy = 2;
-            int duration = 5;
+            // Create job object
             Job job = new Job(jobDesc, deadline, redundancy, duration);
 
-            // Send the Job object to the server
+            // Connect to server
+            Socket socket = new Socket("localhost", 5000);
+            JOptionPane.showMessageDialog(null, "Connected to server.");
+
+            // Send object
+            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(dos);
             objectOutputStream.writeObject(job);
             objectOutputStream.flush();
-            System.out.println("Job sent to server.");
 
-            // Close streams and socket
+            JOptionPane.showMessageDialog(null, "Job sent to server!");
+
+            // Close everything
             objectOutputStream.close();
             dos.close();
             socket.close();
-
-        } catch (IOException e) {
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
