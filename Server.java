@@ -1,56 +1,50 @@
+import java.io.EOFException;
+import java.io.IOException;
+import java.net.Socket;
 import java.io.*;
-import java.net.*;
-
 public class Server extends Thread {
-    final DataInputStream inputStream;
-    final DataOutputStream outputStream;
-    final Socket socket;
+    private final Socket socket;
+    private final DataInputStream inputStream;
+    private final DataOutputStream outputStream;
 
-   
     public Server(Socket socket, DataInputStream inputStream, DataOutputStream outputStream) {
         this.socket = socket;
         this.inputStream = inputStream;
         this.outputStream = outputStream;
-    }   
+    }
 
+    @Override
     public void run() {
         try {
             ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-             // To send response to client
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream); 
-            
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+
             while (true) {
                 try {
-                     // Receive object from client
                     Object object = objectInputStream.readObject();
 
-                    if (object instanceof Job) { 
-                        System.out.println("Job request received...");
+                    if (object instanceof Job) {
                         Job job = (Job) object;
-                        System.out.println("Object converted to Job...");
-                        
-                        // Pass output stream to send response
+                        System.out.println("Job received: " + job);
                         CreateAdminForm jobForm = new CreateAdminForm(job, objectOutputStream);
                         jobForm.setSize(400, 300);
                         jobForm.setVisible(true);
-
-
-                    } else if (object instanceof Vehicle) { 
-                        System.out.println("Car request received...");
+                    } else if (object instanceof Vehicle) {
                         Vehicle vehicle = (Vehicle) object;
-                        System.out.println("Object converted to Car...");
-                        
-                        // Pass output stream to send response
-                        CreateAdminForm carForm = new CreateAdminForm(vehicle, objectOutputStream);
-                        carForm.setSize(400, 300);
-                        carForm.setVisible(true);
+                        System.out.println("Vehicle received: " + vehicle);
+                        CreateAdminForm vehicleForm = new CreateAdminForm(vehicle, objectOutputStream);
+                        vehicleForm.setSize(400, 300);
+                        vehicleForm.setVisible(true);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break; // Exit loop on exception, e.g., client disconnects
+                } catch (EOFException e) {
+                    System.out.println("EOFException: Client disconnected.");
+                    break;  // Handle client disconnection
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();  // Log other exceptions
+                    break;  // Exit loop on other exceptions
                 }
             }
-            // Close resources after loop exits
+
             objectInputStream.close();
             objectOutputStream.close();
             socket.close();
