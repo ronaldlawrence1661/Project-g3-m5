@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.Date;
 
-public class Client {
+public class Client implements Serializable {
     private String ClientID;
     private Date Deadline;
     private int Duration;
