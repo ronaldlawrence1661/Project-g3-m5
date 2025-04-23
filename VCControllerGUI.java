@@ -1,6 +1,4 @@
-package com.vcrts.gui;
 
-import com.vcrts.controller.VCControllerServer;
 import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +33,7 @@ public class VCControllerGUI {
         styleButton(rejectButton);
         styleButton(acceptAllButton);
         styleButton(rejectAllButton);
-        
+
         backButton.setBackground(new Color(192, 57, 43));
         backButton.setForeground(Color.WHITE);
         backButton.setFocusPainted(false);
@@ -67,13 +65,13 @@ public class VCControllerGUI {
         if (selectedIndex != -1) {
             String request = pendingRequestsModel.getElementAt(selectedIndex);
             String requestKey = requestKeys.get(request);
-            
-            int response = JOptionPane.showConfirmDialog(frame, 
-                "Are you sure you want to ACCEPT this request?\n" + request,
-                "Confirm Acceptance", JOptionPane.YES_NO_OPTION);
-            
+
+            int response = JOptionPane.showConfirmDialog(frame,
+                    "Are you sure you want to ACCEPT this request?\n" + request,
+                    "Confirm Acceptance", JOptionPane.YES_NO_OPTION);
+
             if (response == JOptionPane.YES_OPTION) {
-                VCControllerServer.setDecisionForRequest(requestKey, "ACCEPT");
+                // VCControllerServer.setDecisionForRequest(requestKey, "ACCEPT");
                 pendingRequestsModel.remove(selectedIndex);
                 requestKeys.remove(request);
                 JOptionPane.showMessageDialog(frame, "Request accepted!");
@@ -88,13 +86,13 @@ public class VCControllerGUI {
         if (selectedIndex != -1) {
             String request = pendingRequestsModel.getElementAt(selectedIndex);
             String requestKey = requestKeys.get(request);
-            
-            int response = JOptionPane.showConfirmDialog(frame, 
-                "Are you sure you want to REJECT this request?\n" + request,
-                "Confirm Rejection", JOptionPane.YES_NO_OPTION);
-            
+
+            int response = JOptionPane.showConfirmDialog(frame,
+                    "Are you sure you want to REJECT this request?\n" + request,
+                    "Confirm Rejection", JOptionPane.YES_NO_OPTION);
+
             if (response == JOptionPane.YES_OPTION) {
-                VCControllerServer.setDecisionForRequest(requestKey, "REJECT");
+                // VCControllerServer.setDecisionForRequest(requestKey, "REJECT");
                 pendingRequestsModel.remove(selectedIndex);
                 requestKeys.remove(request);
                 JOptionPane.showMessageDialog(frame, "Request rejected!");
@@ -106,15 +104,15 @@ public class VCControllerGUI {
 
     private void handleAcceptAllAction() {
         if (pendingRequestsModel.size() > 0) {
-            int response = JOptionPane.showConfirmDialog(frame, 
-                "Are you sure you want to accept ALL pending requests?", 
-                "Confirm Accept All", JOptionPane.YES_NO_OPTION);
-            
+            int response = JOptionPane.showConfirmDialog(frame,
+                    "Are you sure you want to accept ALL pending requests?",
+                    "Confirm Accept All", JOptionPane.YES_NO_OPTION);
+
             if (response == JOptionPane.YES_OPTION) {
                 for (int i = 0; i < pendingRequestsModel.size(); i++) {
                     String request = pendingRequestsModel.getElementAt(i);
                     String requestKey = requestKeys.get(request);
-                    VCControllerServer.setDecisionForRequest(requestKey, "ACCEPT");
+                    // VCControllerServer.setDecisionForRequest(requestKey, "ACCEPT");
                 }
                 pendingRequestsModel.clear();
                 requestKeys.clear();
@@ -127,15 +125,15 @@ public class VCControllerGUI {
 
     private void handleRejectAllAction() {
         if (pendingRequestsModel.size() > 0) {
-            int response = JOptionPane.showConfirmDialog(frame, 
-                "Are you sure you want to reject ALL pending requests?", 
-                "Confirm Reject All", JOptionPane.YES_NO_OPTION);
-            
+            int response = JOptionPane.showConfirmDialog(frame,
+                    "Are you sure you want to reject ALL pending requests?",
+                    "Confirm Reject All", JOptionPane.YES_NO_OPTION);
+
             if (response == JOptionPane.YES_OPTION) {
                 for (int i = 0; i < pendingRequestsModel.size(); i++) {
                     String request = pendingRequestsModel.getElementAt(i);
                     String requestKey = requestKeys.get(request);
-                    VCControllerServer.setDecisionForRequest(requestKey, "REJECT");
+                    // VCControllerServer.setDecisionForRequest(requestKey, "REJECT");
                 }
                 pendingRequestsModel.clear();
                 requestKeys.clear();

@@ -1,6 +1,4 @@
-package com.vcrts.gui;
 
-import com.vcrts.controller.VCControllerServer;
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
@@ -44,6 +42,7 @@ public class MainMenu {
         JButton checkClientInfoButton = new JButton("Check Client Info");
         JButton checkVehicleOwnerInfoButton = new JButton("Check Vehicle Owner Info");
         JButton vcControllerButton = new JButton("VC Controller");
+        JButton serverClientButton = new JButton("Start Server & Client");
         JButton exitButton = new JButton("Exit");
 
         styleButton(clientLoginButton);
@@ -51,7 +50,7 @@ public class MainMenu {
         styleButton(checkClientInfoButton);
         styleButton(checkVehicleOwnerInfoButton);
         styleButton(vcControllerButton);
-        
+        styleButton(serverClientButton);
         exitButton.setBackground(new Color(192, 57, 43));
         exitButton.setForeground(Color.WHITE);
         exitButton.setFocusPainted(false);
@@ -62,6 +61,7 @@ public class MainMenu {
         panel.add(checkClientInfoButton);
         panel.add(checkVehicleOwnerInfoButton);
         panel.add(vcControllerButton);
+        panel.add(serverClientButton);
         panel.add(exitButton);
 
         clientLoginButton.addActionListener(e -> {
@@ -106,8 +106,28 @@ public class MainMenu {
         });
 
         exitButton.addActionListener(e -> {
-            VCControllerServer.stopServer();
             System.exit(0);
+        });
+
+        serverClientButton.addActionListener((e) -> {
+            new Thread(() -> {
+                try {
+                    ServerApp.main(null); // call your server
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000); // small delay to let the server start first
+                    ClientApp.main(null); // call your client
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
+
+            JOptionPane.showMessageDialog(frame, "Server and Client started.");
         });
 
         frame.add(panel, BorderLayout.CENTER);

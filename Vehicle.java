@@ -1,6 +1,6 @@
-package com.vcrts.model;
+import java.io.Serializable;
 
-public class Vehicle {
+public class Vehicle implements Serializable {
     private int carID;
     private int ownerID;
 

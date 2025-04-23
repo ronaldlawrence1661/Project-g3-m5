@@ -1,4 +1,4 @@
-package com.vcrts.model;
+
 
 import java.util.Date;
 
@@ -22,7 +22,7 @@ public class Client {
     public String getJobDesc() { return jobDesc; }
 
     public Job createJob(String jobDesc, Date deadline, int redundancy, int duration) {
-        Job newJob = new Job(jobDesc, deadline.toString(), jobDesc, redundancy, duration);
+        Job newJob = new Job(jobDesc, deadline, redundancy, duration);
         System.out.println("Job created: " + jobDesc);
         return newJob;
     }

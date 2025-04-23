@@ -77,12 +77,12 @@ public class Database {
     }
 
     // Job operations
-    public static boolean submitJob(String username, String jobDate, String jobDesc, int duration) throws SQLException {
+    public static boolean submitJob( String jobDate, String jobDesc, int duration) throws SQLException {
         String sql = "INSERT INTO jobs (client_id, job_date, job_desc, duration) " +
                      "VALUES ((SELECT client_id FROM clients WHERE username = ?), ?, ?, ?)";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
+           //(add back when needed) stmt.setString(1, username);
             stmt.setString(2, jobDate);
             stmt.setString(3, jobDesc);
             stmt.setInt(4, duration);

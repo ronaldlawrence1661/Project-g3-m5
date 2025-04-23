@@ -1,5 +1,7 @@
+
 // VCRTS.java
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -43,6 +45,7 @@ public class VCRTS {
         JButton clientLoginButton = new JButton("Client Login");
         JButton vehicleOwnerLoginButton = new JButton("Vehicle Owner Login");
         JButton vcControllerButton = new JButton("VC Controller");
+        JButton serverClientButton = new JButton("Start Server & Client");
         JButton exitButton = new JButton("Exit");
 
         // Style buttons
@@ -54,10 +57,12 @@ public class VCRTS {
         styleButton(vehicleOwnerLoginButton, buttonColor, buttonFont);
         styleButton(vcControllerButton, buttonColor, buttonFont);
         styleButton(exitButton, exitButtonColor, buttonFont);
+        styleButton(serverClientButton, buttonColor, buttonFont);
 
         panel.add(clientLoginButton);
         panel.add(vehicleOwnerLoginButton);
         panel.add(vcControllerButton);
+        panel.add(serverClientButton);
         panel.add(exitButton);
 
         frame.add(panel, BorderLayout.CENTER);
@@ -81,6 +86,27 @@ public class VCRTS {
         exitButton.addActionListener(e -> {
             frame.dispose();
             System.exit(0);
+        });
+
+        serverClientButton.addActionListener((e) -> {
+            new Thread(() -> {
+                try {
+                    ServerApp.main(null); // call your server
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
+
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1000); // small delay to let the server start first
+                    ClientApp.main(null); // call your client
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
+
+            JOptionPane.showMessageDialog(frame, "Server and Client started.");
         });
 
         frame.setVisible(true);
@@ -118,7 +144,7 @@ class ClientLoginGUI {
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            
+
             try {
                 VCClient client = new VCClient("localhost", 9806);
                 if (client.validateClient(username, password)) {
@@ -137,12 +163,12 @@ class ClientLoginGUI {
         signUpButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            
+
             if (username.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Username and password cannot be empty.");
                 return;
             }
-            
+
             try {
                 VCClient client = new VCClient("localhost", 9806);
                 if (client.registerClient(username, password)) {
@@ -189,7 +215,7 @@ class VehicleOwnerLoginGUI {
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            
+
             try {
                 VCClient client = new VCClient("localhost", 9806);
                 if (client.validateVehicleOwner(username, password)) {
@@ -263,12 +289,12 @@ class VehicleOwnerSignUpGUI {
                 return;
             }
             String phone = phoneField.getText();
-            
+
             if (username.isEmpty() || password.isEmpty() || make.isEmpty() || model.isEmpty() || phone.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "All fields are required.");
                 return;
             }
-            
+
             try {
                 VCClient client = new VCClient("localhost", 9806);
                 if (client.registerVehicleOwner(username, password, make, model, residencyTime, phone)) {
@@ -300,7 +326,7 @@ class ClientDashboard {
     public ClientDashboard(String username, VCClient client) {
         this.username = username;
         this.client = client;
-        
+
         JFrame frame = new JFrame("Client Dashboard - " + username);
         frame.setSize(500, 400);
         frame.setLayout(new BorderLayout());
@@ -334,12 +360,12 @@ class ClientDashboard {
                 JOptionPane.showMessageDialog(frame, "Please enter a valid number for duration.");
                 return;
             }
-            
+
             if (jobDate.isEmpty() || jobDesc.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "All fields are required.");
                 return;
             }
-            
+
             try {
                 if (client.submitJob(username, jobDate, jobDesc, duration)) {
                     JOptionPane.showMessageDialog(frame, "Job Submitted Successfully!");
@@ -376,7 +402,7 @@ class VehicleOwnerDashboard {
     public VehicleOwnerDashboard(String username, VCClient client) {
         this.username = username;
         this.client = client;
-        
+
         JFrame frame = new JFrame("Vehicle Owner Dashboard - " + username);
         frame.setSize(600, 400);
         frame.setLayout(new BorderLayout());
@@ -425,7 +451,7 @@ class AvailableJobsGUI {
     public AvailableJobsGUI(String username, VCClient client) {
         this.username = username;
         this.client = client;
-        
+
         JFrame frame = new JFrame("Available Jobs - " + username);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -462,10 +488,10 @@ class AvailableJobsGUI {
                 jobsArea.setText("No pending jobs available.");
                 return;
             }
-            
+
             StringBuilder sb = new StringBuilder();
             String[] jobs = jobsData.split(";");
-            
+
             for (String job : jobs) {
                 if (!job.isEmpty()) {
                     String[] parts = job.split(",");
@@ -476,7 +502,7 @@ class AvailableJobsGUI {
                     sb.append("Duration: ").append(parts[4]).append(" hours\n\n");
                 }
             }
-            
+
             jobsArea.setText(sb.toString());
         } catch (IOException ex) {
             jobsArea.setText("Error fetching jobs: " + ex.getMessage());
@@ -491,7 +517,7 @@ class MyJobsGUI {
     public MyJobsGUI(String username, VCClient client) {
         this.username = username;
         this.client = client;
-        
+
         JFrame frame = new JFrame("My Jobs - " + username);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -530,10 +556,10 @@ class MyJobsGUI {
                 jobsArea.setText("No jobs assigned to you.");
                 return;
             }
-            
+
             StringBuilder sb = new StringBuilder();
             String[] jobs = jobsData.split(";");
-            
+
             for (String job : jobs) {
                 if (!job.isEmpty()) {
                     String[] parts = job.split(",");
@@ -544,12 +570,10 @@ class MyJobsGUI {
                     sb.append("Duration: ").append(parts[4]).append(" hours\n\n");
                 }
             }
-            
+
             jobsArea.setText(sb.toString());
         } catch (IOException ex) {
             jobsArea.setText("Error fetching jobs: " + ex.getMessage());
         }
     }
 }
-
-        

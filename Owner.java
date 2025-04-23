@@ -1,4 +1,4 @@
-package com.vcrts.model;
+
 
 public class Owner {
     private String ownerID;

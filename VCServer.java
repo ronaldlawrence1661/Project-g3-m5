@@ -138,13 +138,13 @@ public class VCServer {
         }
 
         private void handleJobSubmission() throws IOException {
-            String username = input.readUTF();
+         //   String username = input.readUTF();
             String jobDate = input.readUTF();
             String jobDesc = input.readUTF();
             int duration = input.readInt();
             
             try {
-                boolean success = Database.submitJob(username, jobDate, jobDesc, duration);
+                boolean success = Database.submitJob(jobDate, jobDesc, duration);
                 output.writeUTF(success ? "JOB_SUBMITTED" : "SUBMISSION_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
