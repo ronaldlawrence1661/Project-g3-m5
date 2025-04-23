@@ -22,7 +22,7 @@ public class VCServer {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            Database.closeConnection();
+            DatabaseH.closeConnection();
         }
     }
 
@@ -90,7 +90,7 @@ public class VCServer {
             String password = input.readUTF();
             
             try {
-                boolean success = Database.registerClient(username, password);
+                boolean success = DatabaseH.registerClient(username, password);
                 output.writeUTF(success ? "REGISTRATION_SUCCESS" : "REGISTRATION_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
@@ -102,7 +102,7 @@ public class VCServer {
             String password = input.readUTF();
             
             try {
-                boolean valid = Database.validateClient(username, password);
+                boolean valid = DatabaseH.validateClient(username, password);
                 output.writeUTF(valid ? "LOGIN_SUCCESS" : "LOGIN_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
@@ -118,7 +118,7 @@ public class VCServer {
             String phone = input.readUTF();
             
             try {
-                boolean success = Database.registerVehicleOwner(username, password, make, model, residencyTime, phone);
+                boolean success = DatabaseH.registerVehicleOwner(username, password, make, model, residencyTime, phone);
                 output.writeUTF(success ? "REGISTRATION_SUCCESS" : "REGISTRATION_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
@@ -130,7 +130,7 @@ public class VCServer {
             String password = input.readUTF();
             
             try {
-                boolean valid = Database.validateVehicleOwner(username, password);
+                boolean valid = DatabaseH.validateVehicleOwner(username, password);
                 output.writeUTF(valid ? "LOGIN_SUCCESS" : "LOGIN_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
@@ -144,7 +144,7 @@ public class VCServer {
             int duration = input.readInt();
             
             try {
-                boolean success = Database.submitJob(jobDate, jobDesc, duration);
+                boolean success = DatabaseH.submitJob(jobDate, jobDesc, duration);
                 output.writeUTF(success ? "JOB_SUBMITTED" : "SUBMISSION_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
@@ -153,7 +153,7 @@ public class VCServer {
 
         private void handleGetPendingJobs() throws IOException {
             try {
-                ResultSet rs = Database.getPendingJobs();
+                ResultSet rs = DatabaseH.getPendingJobs();
                 StringBuilder jobs = new StringBuilder();
                 
                 while (rs.next()) {
@@ -172,7 +172,7 @@ public class VCServer {
 
         private void handleGetVehicleOwners() throws IOException {
             try {
-                ResultSet rs = Database.getVehicleOwners();
+                ResultSet rs = DatabaseH.getVehicleOwners();
                 StringBuilder owners = new StringBuilder();
                 
                 while (rs.next()) {
@@ -196,7 +196,7 @@ public class VCServer {
             int ownerId = input.readInt();
             
             try {
-                boolean success = Database.updateJobStatus(jobId, status, ownerId);
+                boolean success = DatabaseH.updateJobStatus(jobId, status, ownerId);
                 output.writeUTF(success ? "JOB_UPDATED" : "UPDATE_FAILED");
             } catch (SQLException e) {
                 output.writeUTF("DATABASE_ERROR: " + e.getMessage());
@@ -207,7 +207,7 @@ public class VCServer {
             int ownerId = input.readInt();
             
             try {
-                ResultSet rs = Database.getAcceptedJobsForOwner(ownerId);
+                ResultSet rs = DatabaseH.getAcceptedJobsForOwner(ownerId);
                 StringBuilder jobs = new StringBuilder();
                 
                 while (rs.next()) {

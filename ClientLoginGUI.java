@@ -1,4 +1,4 @@
-package com.vcrts.gui;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,7 +54,7 @@ public class ClientLoginGUI {
         String password = new String(passwordField.getPassword());
         if (validateLogin(username, password, "clients.txt")) {
             JOptionPane.showMessageDialog(frame, "Login Successful!");
-            new ClientDashboard(username);
+           // new ClientDashboard(username);
             frame.dispose();
         } else {
             JOptionPane.showMessageDialog(frame, "Invalid username or password.");

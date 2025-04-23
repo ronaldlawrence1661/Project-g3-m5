@@ -56,7 +56,7 @@ public class AcceptJobGUI {
 
         acceptButton.addActionListener(e -> acceptJob(frame, jobComboBox, completedDurationField, statusCombo));
         backButton.addActionListener(e -> {
-            new VehicleOwnerDashboard(username);
+        //    new VehicleOwnerDashboard(username);
             frame.dispose();
         });
 
@@ -83,7 +83,7 @@ public class AcceptJobGUI {
                 return;
             }
 
-            List<String> jobs = new ArrayList<>();
+       //     List<String> jobs = new ArrayList<>();
             boolean jobFound = false;
             
             try (BufferedReader reader = new BufferedReader(new FileReader("jobs.txt"))) {
@@ -121,7 +121,7 @@ public class AcceptJobGUI {
                     writer.write(job + "\n");
                 }
                 JOptionPane.showMessageDialog(frame, "Job Accepted and Updated Successfully!");
-                new VehicleOwnerDashboard(username);
+             //   new VehicleOwnerDashboard(username);
                 frame.dispose();
             }
         } catch (NumberFormatException ex) {

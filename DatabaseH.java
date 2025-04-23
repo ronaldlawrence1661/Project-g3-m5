@@ -2,7 +2,7 @@
 // Database.java
 import java.sql.*;
 
-public class Database {
+public class DatabaseH {
     private static Connection connection = null;
 
     private static final String URL = "jdbc:mysql://localhost:3306/vc3?useTimezone=true&serverTimezone=UTC";

@@ -66,7 +66,7 @@ public class CreateAdminForm extends JFrame {
     private void submitJob( String jobDate, String jobDesc, int duration) {
         // Assuming Database is a class that handles database operations
         try {
-            boolean success = Database.submitJob( jobDate, jobDesc, duration);
+            boolean success = DatabaseH.submitJob( jobDate, jobDesc, duration);
             if (success) {
                 JOptionPane.showMessageDialog(this, "Job submitted successfully!");
             } else {
