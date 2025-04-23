@@ -148,7 +148,7 @@ public class VCControllerGUI {
         String displayText = requestType + ": " + data;
         VCControllerGUI gui = VCControllerServer.gui;
         if (gui != null) {
-            gui.pendingRequestsModel.addElement(displayText);
+         //   gui.pendingRequestsModel.addElem0ent(displayText);
             gui.requestKeys.put(displayText, requestKey);
         }
     }

@@ -102,6 +102,11 @@ class Vehicle {
                 ", duration=" + duration +
                 '}';
     }
+
+    public String getJobId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getJobId'");
+    }
 }
 
 public class VCController {
