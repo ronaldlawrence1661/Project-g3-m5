@@ -8,11 +8,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
+import javax.swing.Timer;
 
 /**
  * Vehicle Control System - Main Application Class
  * 
- 
+ * Updated with job acceptance and removal functionality
  */
 public class VehicleControlSystem extends JFrame {
     
@@ -49,18 +50,51 @@ public class VehicleControlSystem extends JFrame {
     private DefaultTableModel vehicleOwnersModel;
     private DefaultTableModel taskOwnersModel;
     
+    private static void showCoverPage() {
+        JFrame coverFrame = new JFrame("Welcome to Group 3's VCRTS");
+        coverFrame.setSize(1000, 1000);
+        coverFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        coverFrame.setLayout(new BorderLayout());
+        
+        // Main label
+        JLabel coverLabel = new JLabel("Welcome to Group 3's VCRTS", SwingConstants.CENTER);
+        coverLabel.setFont(new Font("Serif", Font.BOLD, 22));
+        coverLabel.setForeground(new Color(59, 89, 182));
+        
+        // Additional information
+        JPanel infoPanel = new JPanel(new GridLayout(3, 1));
+        infoPanel.add(new JLabel("Vehicle Control and Request", SwingConstants.CENTER));
+        infoPanel.add(new JLabel("Tracking System", SwingConstants.CENTER));
+        infoPanel.add(new JLabel("Loading...", SwingConstants.CENTER));
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(coverLabel, BorderLayout.NORTH);
+        mainPanel.add(infoPanel, BorderLayout.CENTER);
+        
+        coverFrame.add(mainPanel, BorderLayout.CENTER);
+        coverFrame.setLocationRelativeTo(null);
+        coverFrame.setVisible(true);
+        
+        Timer timer = new Timer(3000, e -> {
+            coverFrame.dispose();
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
+    
     public VehicleControlSystem() {
         super("Vehicle Control System");
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
+        showCoverPage();
         initializeDatabase();
         createGUI();
         refreshDatabaseView();
         
         setVisible(true);
-        logMessage("System started.");
+        logMessage("System started. ");
     }
     
     private void initializeDatabase() {
@@ -125,7 +159,7 @@ public class VehicleControlSystem extends JFrame {
         
         // Task Owner Form
         JPanel taskOwnerPanel = new JPanel(new BorderLayout());
-        taskOwnerPanel.setBorder(BorderFactory.createTitledBorder("Task Owner Request"));
+        taskOwnerPanel.setBorder(BorderFactory.createTitledBorder("Client Request"));
         taskOwnerPanel.add(createTaskOwnerForm(), BorderLayout.CENTER);
         
         formPanel.add(vehicleOwnerPanel);
@@ -205,7 +239,7 @@ public class VehicleControlSystem extends JFrame {
         
         // Residency Time
         gbc.gridx = 0; gbc.gridy = 5;
-        panel.add(new JLabel("Residency Time (days):"), gbc);
+        panel.add(new JLabel("Residency Time (hours):"), gbc);
         gbc.gridx = 1;
         residencyTimeField = new JTextField(15);
         panel.add(residencyTimeField, gbc);
@@ -255,7 +289,7 @@ public class VehicleControlSystem extends JFrame {
         
         // Job Duration
         gbc.gridx = 0; gbc.gridy = 3;
-        panel.add(new JLabel("Job Duration (days):"), gbc);
+        panel.add(new JLabel("Job Duration (hours):"), gbc);
         gbc.gridx = 1;
         jobDurationField = new JTextField(15);
         panel.add(jobDurationField, gbc);
@@ -297,12 +331,133 @@ public class VehicleControlSystem extends JFrame {
     }
     
     private JScrollPane createTaskOwnersTable() {
-        String[] columns = {"Client ID", "Client Name", "Job Description", "Duration", "Deadline", "Status", "Completion Time", "Entry Date"};
+        String[] columns = {"Client ID", "Client Name", "Job Description", "Duration", "Deadline", "Status", "Completion Time", "Entry Date", "Actions"};
         taskOwnersModel = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override public boolean isCellEditable(int row, int column) { 
+                return column == getColumnCount() - 1; // Only the last column (Actions) is editable
+            }
         };
+        
         taskOwnersTable = new JTable(taskOwnersModel);
+        
+        // Add a custom renderer and editor for the Actions column
+        TableColumn actionsColumn = taskOwnersTable.getColumnModel().getColumn(taskOwnersTable.getColumnCount() - 1);
+        actionsColumn.setCellRenderer(new ButtonRenderer());
+        actionsColumn.setCellEditor(new ButtonEditor(new JCheckBox()));
+        
         return new JScrollPane(taskOwnersTable);
+    }
+    
+    // Button renderer for the table
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setOpaque(true);
+        }
+        
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            setText((value == null) ? "" : value.toString());
+            return this;
+        }
+    }
+    
+    // Button editor for the table
+    class ButtonEditor extends DefaultCellEditor {
+        private JButton button;
+        private String label;
+        private boolean isPushed;
+        private int currentRow;
+        
+        public ButtonEditor(JCheckBox checkBox) {
+            super(checkBox);
+            button = new JButton();
+            button.setOpaque(true);
+            button.addActionListener(e -> fireEditingStopped());
+        }
+        
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                boolean isSelected, int row, int column) {
+            label = (value == null) ? "" : value.toString();
+            button.setText(label);
+            isPushed = true;
+            currentRow = row;
+            return button;
+        }
+        
+        public Object getCellEditorValue() {
+            if (isPushed) {
+                String clientId = (String) taskOwnersTable.getValueAt(currentRow, 0);
+                
+                if (label.equals("Accept")) {
+                    acceptJob(clientId);
+                } else if (label.equals("Complete")) {
+                    completeJob(clientId);
+                }
+            }
+            isPushed = false;
+            return label;
+        }
+        
+        public boolean stopCellEditing() {
+            isPushed = false;
+            return super.stopCellEditing();
+        }
+    }
+    
+    // Method to accept a job
+    private void acceptJob(String clientId) {
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD)) {
+            String sql = "UPDATE task_owners SET status = 'Accepted' WHERE client_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, clientId);
+                int rowsAffected = pstmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    logMessage("Job " + clientId + " has been accepted");
+                    refreshDatabaseView();
+                } else {
+                    logMessage("No job found with ID: " + clientId);
+                }
+            }
+        } catch (SQLException e) {
+            logMessage("Error accepting job: " + e.getMessage());
+        }
+    }
+    
+    // Method to complete and remove a job
+    private void completeJob(String clientId) {
+        int confirm = JOptionPane.showConfirmDialog(this, 
+            "Are you sure you want to complete and remove this job?", 
+            "Confirm Completion", JOptionPane.YES_NO_OPTION);
+        
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+        
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD)) {
+            // First update completion time
+            String updateSql = "UPDATE task_owners SET status = 'Completed', completion_time = CURRENT_TIMESTAMP WHERE client_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
+                pstmt.setString(1, clientId);
+                pstmt.executeUpdate();
+            }
+            
+            // Then remove from database
+            String deleteSql = "DELETE FROM task_owners WHERE client_id = ?";
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteSql)) {
+                pstmt.setString(1, clientId);
+                int rowsAffected = pstmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    logMessage("Job " + clientId + " has been completed and removed");
+                    refreshDatabaseView();
+                } else {
+                    logMessage("No job found with ID: " + clientId);
+                }
+            }
+        } catch (SQLException e) {
+            logMessage("Error completing job: " + e.getMessage());
+        }
     }
     
     private void submitVehicleRequest() {
@@ -447,24 +602,34 @@ public class VehicleControlSystem extends JFrame {
     private void calculateCompletionTime() {
         if (!validateTaskForm(true)) return;
         
-        try {
-            int duration = Integer.parseInt(jobDurationField.getText());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date deadline = sdf.parse(jobDeadlineField.getText());
+        try (Connection conn = DriverManager.getConnection(DB_URL + DB_NAME, DB_USER, DB_PASSWORD)) {
+            // First get the current job's duration from the form
+            int currentJobDuration = Integer.parseInt(jobDurationField.getText());
             
-            // Calculate completion time (deadline minus duration)
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(deadline);
-            cal.add(Calendar.DAY_OF_MONTH, -duration);
-            Date completionDate = cal.getTime();
+            // Get all jobs from the database (or just for this client if you prefer)
+            String sql = "SELECT job_duration FROM task_owners";
             
-            String message = "Job completion should be by: " + sdf.format(completionDate);
-            logMessage(message);
-            JOptionPane.showMessageDialog(this, message, "Completion Time", JOptionPane.INFORMATION_MESSAGE);
-            
-        } catch (ParseException e) {
-            logMessage("Invalid date format: " + e.getMessage());
-            JOptionPane.showMessageDialog(this, "Invalid date format (use YYYY-MM-DD)", "Error", JOptionPane.ERROR_MESSAGE);
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                int completionTime = currentJobDuration; // Start with current job
+                
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    while (rs.next()) {
+                        int duration = rs.getInt("job_duration");
+                        completionTime += duration;
+                        logMessage("Job Duration: " + duration + " days, Cumulative Completion Time: " + completionTime + " hours");
+                    }
+                }
+                
+                String message = "Total cumulative completion time for all jobs: " + completionTime + " hours";
+                logMessage(message);
+                JOptionPane.showMessageDialog(this, message, "Completion Time Calculation", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (SQLException e) {
+            logMessage("Database error calculating completion time: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error calculating completion time", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (NumberFormatException e) {
+            logMessage("Invalid duration value: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Please enter a valid job duration", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -548,15 +713,19 @@ public class VehicleControlSystem extends JFrame {
             try (Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery("SELECT * FROM task_owners")) {
                 while (rs.next()) {
+                    String status = rs.getString("status");
+                    String actionButtonText = "Pending".equals(status) ? "Accept" : "Complete";
+                    
                     taskOwnersModel.addRow(new Object[]{
                         rs.getString("client_id"),
                         rs.getString("client_name"),
                         rs.getString("job_description"),
                         rs.getInt("job_duration"),
                         rs.getDate("job_deadline"),
-                        rs.getString("status"),
+                        status,
                         rs.getTimestamp("completion_time"),
-                        rs.getTimestamp("entry_date")
+                        rs.getTimestamp("entry_date"),
+                        actionButtonText
                     });
                 }
             }
@@ -590,10 +759,10 @@ public class VehicleControlSystem extends JFrame {
             consoleLog.setCaretPosition(consoleLog.getDocument().getLength());
         });
     }
-
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            showCoverPage();
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                 new VehicleControlSystem();
